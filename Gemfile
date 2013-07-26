@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+gem 'coffee-script'
+gem 'thin'
+gem 'sprockets'
+gem 'sinatra'
