@@ -1,8 +1,63 @@
 <!doctype html>
 <html>
-<head>
-<script src='assets/application.js'></script>
-</head>
-<body>
-</body>
+  <head>
+    <script src='assets/application.js'></script>
+    <style>
+      body {
+        border: 1px solid;
+        overflow: hidden;
+        padding: 0px;
+        margin: 0px;
+        width: 100%;
+      }
+      ul {
+        list-style: none;
+        border: 1px blue dotted;
+        padding: 0px;
+        width: 33%;
+      }
+      #waiting {
+        float: left;
+      }
+      #waiting li{
+        margin-right: 40%;
+      }
+      #workers {
+        float: left;
+      }
+      #workers li {
+        text-align: center;
+        margin: 10px 40%;
+      }
+      #finished {
+        text-align: right;
+        overflow: hidden;
+      }
+
+      #finished li {
+        margin-left: 40%;
+      }
+      li {
+        border: 1px solid;
+        margin: 10px;
+        padding: 10px;
+      }
+      li.failed { color: red; }
+      li.passed { color: green; }
+      li.undefined { color: teal; }
+    </style>
+  </head>
+  <body>
+  <ul id='waiting'>
+    <li>cucumber.feature</li>
+  </ul>
+  <ul id='workers'>
+    <li>1</li>
+  </ul>
+  <ul id='finished'>
+    <li class='failed'>backbone.feature</li>
+    <li class='passed'>backbone.feature</li>
+    <li class='undefined'>backbone.feature</li>
+  </ul>
+  </body>
 </html>
