@@ -15,41 +15,71 @@ $ ->
 
 class Flatware extends Backbone.Model
   initialize: ->
-    @jobs    = new Backbone.Collection
-    @workers = new Backbone.Collection
+    @jobs    = new Backbone.Collection [], model: Job
+    @workers = new Backbone.Collection [], model: Worker
     @on 'jobs', (jobs)=> @jobs.set jobs
     @on 'started', (work)=>
       {worker, job} = work
-      @workers.add(id: worker)
-      @jobs.get(job).set(workerId: worker)
+      worker = @workers.add(id: worker).get(worker)
+      job    = @jobs.add(id: job).get(job)
+      job.set worker: worker
+      worker.set job: job
+
+    @on 'finished', (work)=>
+      {worker, job} = work
+      worker = @workers.add(id: worker).get(worker)
+      job    = @jobs.add(id: job).get(job)
+      job.set worker: null
+      worker.set job: null
 
     @on 'progress', (progress)=>
       {status, worker} = progress
-      @workers.get(worker).set(status: status)
+      @workers.add(id: worker).get(worker).set(status: status)
 
     # @on 'all', -> console.log arguments
 
+class Job extends Backbone.Model
+  defaults:
+    status: 'waiting'
+
+class Worker extends Backbone.Model
+  defaults:
+    status: 'waiting'
+  initialize: ->
+    @on 'change:status change:job', -> @get('job')?.set status: @get 'status'
 
 View = {}
 
 class View.Job extends Backbone.View
+  tagName: 'li'
   initialize: ->
     @listenTo @model, 'change', @render
+    @listenTo @model, 'change:worker', @remove
   render: ->
-    console.log @model.attributes
+    @$el.addClass( @model.get 'status' ).html @model.id
     this
 
 class View.Worker extends Backbone.View
+  tagName: 'li'
   initialize: ->
     @listenTo @model, 'change', @render
+
   render: ->
-    console.log @model.attributes
+    @$el.html "<p>#{@model.id}</p>"
+    if job = @model.get 'job'
+      jobList = $ '<ul>'
+      @$el.append jobList
+      new View.Job(model:job).render().$el.appendTo jobList
     this
 
 class View.Flatware extends Backbone.View
   initialize: ->
     @listenTo @model.jobs, 'add', (job)->
-      new View.Job(model: job).render().$el.appendTo 'body'
+      new View.Job(model: job).render().$el.appendTo '#waiting'
+
+    @listenTo @model.jobs, 'change:worker', (job, worker)->
+      unless worker
+        new View.Job(model: job).render().$el.appendTo '#finished'
 
     @listenTo @model.workers, 'add', (job)->
-      new View.Worker(model: job).render().$el.appendTo 'body'
+      new View.Worker(model: job).render().$el.appendTo '#workers'

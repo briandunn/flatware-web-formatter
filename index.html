@@ -4,15 +4,14 @@
     <script src='assets/application.js'></script>
     <style>
       body {
-        border: 1px solid;
         overflow: hidden;
         padding: 0px;
         margin: 0px;
         width: 100%;
+        background: #eee;
       }
       ul {
         list-style: none;
-        border: 1px blue dotted;
         padding: 0px;
         width: 33%;
       }
@@ -27,7 +26,10 @@
       }
       #workers li {
         text-align: center;
-        margin: 10px 40%;
+        margin: 10px 10%;
+      }
+      #workers li ul {
+        width: 100%;
       }
       #finished {
         text-align: right;
@@ -41,23 +43,17 @@
         border: 1px solid;
         margin: 10px;
         padding: 10px;
+        background: #fff;
       }
       li.failed { color: red; }
       li.passed { color: green; }
-      li.undefined { color: teal; }
+      li.skipped { color: teal; }
+      li.pending { color: yellow; }
     </style>
   </head>
   <body>
-  <ul id='waiting'>
-    <li>cucumber.feature</li>
-  </ul>
-  <ul id='workers'>
-    <li>1</li>
-  </ul>
-  <ul id='finished'>
-    <li class='failed'>backbone.feature</li>
-    <li class='passed'>backbone.feature</li>
-    <li class='undefined'>backbone.feature</li>
-  </ul>
+    <ul id='waiting'></ul>
+    <ul id='workers'></ul>
+    <ul id='finished'></ul>
   </body>
 </html>
