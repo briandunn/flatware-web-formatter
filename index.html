@@ -46,10 +46,17 @@
         padding: 10px;
         background: #fff;
       }
-      li.failed { color: red; }
-      li.passed { color: green; }
-      li.skipped { color: teal; }
-      li.pending { color: yellow; }
+      li span {
+        display: inline-block;
+      }
+      .failed { color: red; }
+      .passed { color: green; }
+      .skipped { color: teal; }
+      .undefined { color: yellow; }
+      span.failed::after { content: '✗' }
+      span.passed::after { content: '✓' }
+      span.skipped::after { content: '-' }
+      span.undefined::after { content: 'U' }
     </style>
   </head>
   <body>

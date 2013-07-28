@@ -41,24 +41,22 @@ class Flatware extends Backbone.Model
 class Job extends Backbone.Model
   defaults:
     status: 'waiting'
-
-  dots: -> @get('worker')?.statuses.length || 0
+    dots: []
 
   title: -> @id.match(/\/(.*)\./)[1].replace /_/g, ' '
 
 class Worker extends Backbone.Model
   defaults:
     status: 'waiting'
-    dots: 0
+    dots: []
 
   addStatus: (status)->
-    @set dots: @get('dots') + 1
+    @set dots: @get('dots').concat(status)
     @set status: status
 
   initialize: ->
-    @statuses = []
-    @on 'change:status change:job', -> @get('job')?.set status: @get 'status'
-    @on 'change:job', -> @set dots: 0
+    @on 'change', -> @get('job')?.set @pick 'status', 'dots'
+    @on 'change:job', -> @set dots: []
 
 View = {}
 
@@ -70,6 +68,7 @@ class View.Job extends Backbone.View
 
   render: ->
     @$el.addClass( @model.get 'status' ).html "<p>#{@model.title()}</p>"
+    _(@model.get('dots')).each (dot)=> @$el.append $('<span>').addClass dot
     this
 
 class View.Worker extends Backbone.View
@@ -78,7 +77,7 @@ class View.Worker extends Backbone.View
     @listenTo @model, 'change', @render
 
   render: ->
-    @$el.html "<p>#{@model.id}</p>#{ _(@model.get('dots')).times(-> '.').join '' }"
+    @$el.html "<p>#{@model.id}</p>"
     if job = @model.get 'job'
       jobList = $ '<ul>'
       @$el.append jobList
