@@ -16,7 +16,7 @@ $ ->
 class Flatware extends Backbone.Model
   initialize: ->
     @jobs    = new Backbone.Collection [], model: Job, comparator: (model)-> model.id
-    @workers = new Backbone.Collection [], model: Worker, comparator: (model)-> model.id
+    @workers = new Workers []
     @on 'jobs', (jobs)=> @jobs.set jobs
     @on 'started', (work)=>
       {worker, job} = work
@@ -64,6 +64,12 @@ class Worker extends Backbone.Model
   initialize: ->
     @on 'change', -> @get('job')?.set @pick 'status', 'dots'
     @on 'change:job', -> @set dots: []
+
+class Workers extends Backbone.Collection
+  model: Worker
+  initialize: ->
+    @on 'add', @sort
+  comparator: (model)-> model.id
 
 View = {}
 
