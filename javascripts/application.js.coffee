@@ -36,12 +36,19 @@ class Flatware extends Backbone.Model
       {status, worker} = progress
       @workers.add(id: worker).get(worker).addStatus(status)
 
-    @on 'all', -> console.log arguments
+    # @on 'all', -> console.log arguments
 
 class Job extends Backbone.Model
   defaults:
     status: 'waiting'
     dots: []
+
+  initialize: ->
+    @on 'change:worker', (_, worker)->
+      if worker
+        @trigger 'assigned', worker
+      else
+        @trigger 'completed'
 
   title: -> @id.match(/\/(.*)\./)[1].replace /_/g, ' '
 
@@ -64,7 +71,30 @@ class View.Job extends Backbone.View
   tagName: 'li'
   initialize: ->
     @listenTo @model, 'change', @render
-    @listenTo @model, 'change:worker', @remove
+    @listenTo @model, 'assigned', @assign
+    @listenTo @model, 'completed', @completed
+
+  assign: (worker)->
+    left = worker.get('left') - @$el.offset().left
+    top  = worker.get('top')  - @$el.offset().top
+    @$el.animate {translateX: "#{left}px", translateY: "#{top}px"},
+      duration: 500
+      complete: =>
+        @$el.remove()
+          .animate {translateX: "0px", translateY: "0px"}, duration: 0, complete: =>
+            @$el.appendTo $('#workers > li').eq(worker.id).find 'ul'
+
+
+  completed: ->
+    left = $('#finished').offset().left - @$el.offset().left
+    top  = $('#finished').offset().top  - @$el.offset().top
+    console.log left, top
+    @$el.animate {translateX: "#{left}px", translateY: "#{top}px"},
+      duration: 500
+      complete: =>
+        @$el.remove()
+          .animate {translateX: "0px", translateY: "0px"}, duration: 0, complete: =>
+            @$el.prependTo $ '#finished'
 
   render: ->
     @$el.addClass( @model.get 'status' ).html "<p>#{@model.title()}</p>"
@@ -73,15 +103,9 @@ class View.Job extends Backbone.View
 
 class View.Worker extends Backbone.View
   tagName: 'li'
-  initialize: ->
-    @listenTo @model, 'change', @render
 
   render: ->
-    @$el.html "<p>#{@model.id}</p>"
-    if job = @model.get 'job'
-      jobList = $ '<ul>'
-      @$el.append jobList
-      new View.Job(model:job).render().$el.appendTo jobList
+    @$el.html "<p>#{@model.id}</p><ul></ul>"
     this
 
 class View.Flatware extends Backbone.View
@@ -89,9 +113,7 @@ class View.Flatware extends Backbone.View
     @listenTo @model.jobs, 'add', (job)->
       new View.Job(model: job).render().$el.appendTo '#waiting'
 
-    @listenTo @model.jobs, 'change:worker', (job, worker)->
-      unless worker
-        new View.Job(model: job).render().$el.appendTo '#finished'
-
     @listenTo @model.workers, 'add', (job)->
-      new View.Worker(model: job).render().$el.appendTo '#workers'
+      workerView = new View.Worker(model: job).render()
+      workerView.$el.appendTo '#workers'
+      workerView.model.set workerView.$el.offset()
