@@ -3,59 +3,56 @@
   <head>
     <script src='assets/application.js'></script>
     <style>
-      p { padding: 0; margin: 0;}
       body {
-        overflow: hidden;
-        padding: 0px;
-        margin: 0px;
-        width: 100%;
-        background: #eee;
+        overflow   : hidden;
+        padding    : 0px;
+        margin     : 0px;
+        width      : 100%;
+        background : #eee
       }
       ul {
         list-style: none;
         padding: 0px;
-        width: 33%;
+        width: 33%
       }
-      #waiting {
-        float: left;
-      }
-      #waiting li{
-        margin-right: 40%;
-      }
-      #workers {
-        float: left;
-      }
-      #workers li {
-        text-align: center;
-        margin: 10px 10%;
-      }
-      #workers li ul {
-        width: 100%;
-      }
-      #finished {
-        text-align: right;
-        overflow: hidden;
-      }
-
-      #finished li {
-        margin-left: 40%;
+      p {
+        padding : 0;
+        margin  : 0;
+        color   : black
       }
       li {
-        border: 1px solid;
-        margin: 10px;
-        padding: 10px;
-        background: #fff;
+        border     : 1px solid;
+        margin     : 10px;
+        padding    : 10px;
+        background : white
       }
-      li span {
-        display: inline-block;
+      li span { display: inline-block }
+
+      #waiting { float: left }
+      #waiting li { margin-right: 40% }
+
+      #workers { float: left }
+      #workers li {
+        text-align : center;
+        margin     : 10px 10%
+
       }
-      .failed { color: red; }
-      .passed { color: green; }
-      .skipped { color: teal; }
-      .undefined { color: yellow; }
-      span.failed::after { content: '✗' }
-      span.passed::after { content: '✓' }
-      span.skipped::after { content: '-' }
+      #workers li ul { width: 100% }
+
+      #finished {
+        text-align : right;
+        overflow   : hidden
+      }
+      #finished li { margin-left: 40% }
+
+      .failed    { color: red }
+      .passed    { color: green }
+      .skipped   { color: teal }
+      .undefined { color: yellow }
+
+      span.failed::after    { content: '✗' }
+      span.passed::after    { content: '✓' }
+      span.skipped::after   { content: '-' }
       span.undefined::after { content: 'U' }
     </style>
   </head>
