@@ -97,17 +97,22 @@ class View.Worker extends Backbone.View
     this
 
 class View.Transition extends Backbone.View
+  distance = (from, to)->
+    from.offset()[dimension] - to.offset()[dimension] for dimension in ['left', 'top']
+
+  translate = (x, y)->
+    {translateX: "#{x}px", translateY: "#{y}px"}
+
   initialize: (options)->
     @target = options.target
 
   render: ->
-    left = @target.offset().left - @$el.offset().left
-    top  = @target.offset().top  - @$el.offset().top
-    @$el.animate {translateX: "#{left}px", translateY: "#{top}px"},
-      duration: 500
+    [x, y] = distance @target, @$el
+    @$el.animate translate(x, y),
+      duration: 250
       complete: =>
         @$el.remove()
-          .animate {translateX: "0px", translateY: "0px"}, duration: 0, complete: =>
+          .animate translate(0, 0), duration: 0, complete: =>
             @$el.prependTo @target
 
 class View.Flatware extends Backbone.View
