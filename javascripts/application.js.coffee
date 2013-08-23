@@ -3,7 +3,7 @@
 #= require vendor/backbone
 $ ->
   source = new EventSource '/subscribe'
-  window.flatware = new Flatware
+  window.flatware = new FWF.Flatware
   source.onmessage = (e)->
     [event, data] = JSON.parse e.data
     flatware.trigger event, data
@@ -11,19 +11,22 @@ $ ->
   source.onerror = (e)-> console.log e.type
   source.onopen  = (e)-> console.log e.type
 
-  new View.Flatware model: flatware, el: $ 'body'
+  new FWF.View.Flatware model: flatware, el: $ 'body'
 
-class Flatware extends Backbone.Model
+window.FWF = {}
+
+class FWF.Flatware extends Backbone.Model
   reset = ->
     @workers.remove @workers.models
     @jobs.remove @jobs.models
 
   initialize: ->
-    @jobs    = new Backbone.Collection [], model: Job, comparator: (model)-> model.id
-    @workers = new Workers []
+    @jobs    = new Backbone.Collection [], model: FWF.Job, comparator: (model)-> model.id
+    @workers = new FWF.Workers []
     @on 'jobs', (jobs)=>
       reset.apply this
       @jobs.set jobs
+
     @on 'started', (work)=>
       {worker, job} = work
       worker = @workers.add(id: worker).get(worker)
@@ -44,7 +47,7 @@ class Flatware extends Backbone.Model
 
     # @on 'all', -> console.log arguments
 
-class Job extends Backbone.Model
+class FWF.Job extends Backbone.Model
   defaults:
     status: 'waiting'
     dots: []
@@ -58,7 +61,7 @@ class Job extends Backbone.Model
 
   title: -> @id.match(/\/(.*)\./)[1].replace /_/g, ' '
 
-class Worker extends Backbone.Model
+class FWF.Worker extends Backbone.Model
   defaults:
     status: 'waiting'
     dots: []
@@ -75,13 +78,13 @@ class Worker extends Backbone.Model
       @trigger 'assigned', worker, job if job
       @set dots: []
 
-class Workers extends Backbone.Collection
-  model: Worker
+class FWF.Workers extends Backbone.Collection
+  model: FWF.Worker
   initialize: ->
     @on 'add', @sort
   comparator: (model)-> model.id
 
-View = {}
+View = FWF.View = {}
 
 class View.Job extends Backbone.View
   tagName: 'li'
