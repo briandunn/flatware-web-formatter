@@ -96,41 +96,41 @@ class View.Worker extends Backbone.View
     @$el.html "<p>#{@model.id}</p><ul></ul>"
     this
 
-class View.Transition extends Backbone.View
+class View.Transition
   distance = (from, to)->
     from.offset()[dimension] - to.offset()[dimension] for dimension in ['left', 'top']
 
   translate = (x, y)->
     {translateX: "#{x}px", translateY: "#{y}px"}
 
-  initialize: (options)->
-    @target = options.target
+  constructor: (options)-> @$el = $ options.el
 
-  render: ->
-    [x, y] = distance @target, @$el
+  render: (target)->
+    [x, y] = distance target, @$el
     @$el.animate translate(x, y),
       duration: 250
       complete: =>
         @$el.remove()
           .animate translate(0, 0), duration: 0, complete: =>
-            @$el.prependTo @target
+            @$el.prependTo target
+    this
 
 class View.Flatware extends Backbone.View
   initialize: ->
     @finished = @$ '#finished'
-    @jobViews = {}
+    @transitions = {}
     @listenTo @model.jobs, 'add', @addJob
     @listenTo @model.workers, 'add', @addWorker
 
   addJob: (job)=>
     jobView = new View.Job(model: job)
-    @jobViews[job.id] = jobView
     jobView.render().$el.appendTo '#waiting'
+    @transitions[job.id] = transition = new View.Transition(el: jobView.el)
     @listenTo job, 'completed', =>
-      new View.Transition(el: jobView.el, target: @finished).render()
+      transition.render @finished
 
   addWorker: (worker)=>
     workerView = new View.Worker(model: worker).render()
     workerView.$el.appendTo '#workers'
     @listenTo worker, 'assigned', (_, job)=>
-      new View.Transition(el: @jobViews[job.id].el, target: workerView.jobList()).render()
+      @transitions[job.id].render workerView.$el
