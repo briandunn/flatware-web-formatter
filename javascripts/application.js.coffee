@@ -14,10 +14,16 @@ $ ->
   new View.Flatware model: flatware, el: $ 'body'
 
 class Flatware extends Backbone.Model
+  reset = ->
+    @workers.remove @workers.models
+    @jobs.remove @jobs.models
+
   initialize: ->
     @jobs    = new Backbone.Collection [], model: Job, comparator: (model)-> model.id
     @workers = new Workers []
-    @on 'jobs', (jobs)=> @jobs.set jobs
+    @on 'jobs', (jobs)=>
+      reset.apply this
+      @jobs.set jobs
     @on 'started', (work)=>
       {worker, job} = work
       worker = @workers.add(id: worker).get(worker)
@@ -81,6 +87,7 @@ class View.Job extends Backbone.View
   tagName: 'li'
   initialize: ->
     @listenTo @model, 'change', @render
+    @listenTo @model, 'remove', @remove
 
   render: ->
     @$el.removeAttr('class').addClass( @model.get 'status' ).html "<p>#{@model.title()}</p>"
@@ -88,6 +95,9 @@ class View.Job extends Backbone.View
     this
 
 class View.Worker extends Backbone.View
+  initialize: ->
+    @listenTo @model, 'remove', @remove
+
   tagName: 'li'
 
   jobList: -> @$ 'ul'
