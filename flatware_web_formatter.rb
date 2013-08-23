@@ -3,6 +3,8 @@ require 'sinatra'
 class Server < Sinatra::Base
   set :server, :thin
   connections = []
+  pathname = Pathname.new(__FILE__).dirname
+
 
   get '/subscribe' do
     headers 'Content-Type' => 'text/event-stream'
@@ -12,7 +14,11 @@ class Server < Sinatra::Base
   end
 
   get '/' do
-    Pathname.new(__FILE__).dirname.join('index.html').read
+    pathname.join('index.html').read
+  end
+
+  get '/spec' do
+    pathname.join('spec/SpecRunner.html').read
   end
 
   post '/message' do

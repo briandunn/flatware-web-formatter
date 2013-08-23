@@ -45,7 +45,7 @@ class FWF.Flatware extends Backbone.Model
       {status, worker} = progress
       @workers.add(id: worker).get(worker).addStatus(status)
 
-    # @on 'all', -> console.log arguments
+    @on 'all', -> console.log arguments
 
 class FWF.Job extends Backbone.Model
   defaults:
@@ -66,6 +66,8 @@ class FWF.Worker extends Backbone.Model
     status: 'waiting'
     dots: []
 
+  completions: 0
+
   addStatus: (status)->
     @set dots: @get('dots').concat(status)
     @set status: status
@@ -75,6 +77,7 @@ class FWF.Worker extends Backbone.Model
     @on 'change:job', (worker, job)->
       if completed = worker.previousAttributes().job
         @trigger 'completed', worker, completed
+        @completions += 1
       @trigger 'assigned', worker, job if job
       @set dots: []
 
@@ -99,6 +102,7 @@ class View.Job extends Backbone.View
 
 class View.Worker extends Backbone.View
   initialize: ->
+    @listenTo @model, 'change', @renderStatus
     @listenTo @model, 'remove', @remove
 
   tagName: 'li'
@@ -106,8 +110,17 @@ class View.Worker extends Backbone.View
   jobList: -> @$ 'ul'
 
   render: ->
-    @$el.html "<p>#{@model.id}</p><ul></ul>"
+    @$el.append("<dl></dl><ul></ul>")
+    @renderStatus()
     this
+
+  renderStatus: ->
+    @$el.find("dl").html """
+      <dt>worker:</dt>
+        <dd>#{@model.id}</dd>
+      <dt>completions:</dt>
+        <dd>#{@model.completions}</dd>
+    """
 
 class View.Transition
   distance = (from, to)->
